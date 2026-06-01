@@ -35,7 +35,7 @@ import {
   fechaCierreLegible,
   tiempoRestanteCierre,
 } from './firebase';
-import { calcularPuntos, porraCompleta, PTS } from './puntos';
+import { calcularPuntos, porraCompleta, PTS, clasificacionGrupo } from './puntos';
 import { ANEXO_C, R32_TO_COL, ANEXO_C_COLS, asignarTercerosAnexoC } from './anexo-c';
 
 const PORTADA_IMG = '/portada-campeones.jpg';
@@ -548,92 +548,12 @@ function onChangeMarcadorAutoSalto(e, onChangeOriginal) {
 // ============================================================
 function calcularClasificacionGrupo(letraGrupo, resultados, desempates) {
   const equipos = GRUPOS[letraGrupo];
-  const stats = {};
-  equipos.forEach(eq => {
-    stats[eq] = { equipo: eq, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, pts: 0 };
-  });
-
   const partidosGrupo = PARTIDOS.filter(p => p.grupo === letraGrupo);
-  partidosGrupo.forEach(p => {
-    const r = resultados[p.id];
-    if (r && r.golesLocal !== '' && r.golesVisitante !== '') {
-      const gl = parseInt(r.golesLocal);
-      const gv = parseInt(r.golesVisitante);
-      if (!isNaN(gl) && !isNaN(gv)) {
-        const sL = stats[p.local];
-        const sV = stats[p.visitante];
-        if (sL && sV) {
-          sL.pj++; sV.pj++;
-          sL.gf += gl; sL.gc += gv;
-          sV.gf += gv; sV.gc += gl;
-          if (gl > gv) { sL.pg++; sL.pts += 3; sV.pp++; }
-          else if (gl < gv) { sV.pg++; sV.pts += 3; sL.pp++; }
-          else { sL.pe++; sV.pe++; sL.pts++; sV.pts++; }
-        }
-      }
-    }
-  });
-
-  Object.values(stats).forEach(s => { s.dg = s.gf - s.gc; });
-
-  // Orden base: pts, dg, gf
-  const arr = Object.values(stats);
-  arr.sort((a, b) => {
-    if (b.pts !== a.pts) return b.pts - a.pts;
-    if (b.dg !== a.dg) return b.dg - a.dg;
-    if (b.gf !== a.gf) return b.gf - a.gf;
-    return 0;
-  });
-
-  // Detectar grupos de empate exacto (mismos pts, dg y gf) entre equipos que ya han jugado todo
-  const empateGroups = [];
-  let i = 0;
-  while (i < arr.length) {
-    const grupoEmpate = [arr[i]];
-    let j = i + 1;
-    while (j < arr.length &&
-           arr[j].pts === arr[i].pts &&
-           arr[j].dg === arr[i].dg &&
-           arr[j].gf === arr[i].gf) {
-      grupoEmpate.push(arr[j]);
-      j++;
-    }
-    if (grupoEmpate.length > 1 && grupoEmpate.every(e => e.pj === 3)) {
-      empateGroups.push({ startIdx: i, equipos: grupoEmpate });
-    }
-    i = j;
-  }
-
-  // Aplicar desempate manual si existe
-  const tieKey = desempates && desempates[letraGrupo];
-  if (tieKey && empateGroups.length > 0) {
-    empateGroups.forEach(eg => {
-      const orderStr = tieKey[eg.equipos.map(e => e.equipo).sort().join('|')];
-      if (orderStr) {
-        const desiredOrder = orderStr.split('|');
-        const ordered = desiredOrder
-          .map(name => eg.equipos.find(e => e.equipo === name))
-          .filter(Boolean);
-        if (ordered.length === eg.equipos.length) {
-          ordered.forEach((eq, idx) => { arr[eg.startIdx + idx] = eq; });
-        }
-      }
-    });
-  }
-
-  // Marcar empates pendientes y resueltos
-  const tieInfo = empateGroups.map(eg => {
-    const key = eg.equipos.map(e => e.equipo).sort().join('|');
-    const resolved = !!(tieKey && tieKey[key]);
-    return {
-      equipos: eg.equipos.map(e => e.equipo),
-      startIdx: eg.startIdx,
-      resolved,
-      key,
-    };
-  });
-
-  return { tabla: arr, empates: tieInfo };
+  // Delegar en puntos.js para mantener una única fuente de verdad con criterios FIFA.
+  // El desempate manual del UI se almacena indexado por letra de grupo:
+  // desempates[letraGrupo] = { 'eq1|eq2|eq3': 'eq2|eq1|eq3', ... }
+  const desempatesGrupo = desempates && desempates[letraGrupo];
+  return clasificacionGrupo(equipos, partidosGrupo, resultados, desempatesGrupo);
 }
 
 function calcularMejoresTerceros(clasificaciones, desempateTerceros) {
