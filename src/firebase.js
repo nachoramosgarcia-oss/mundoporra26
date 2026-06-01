@@ -32,7 +32,7 @@ import {
 // ===================== ZONA 1: PEGA AQUÍ TU firebaseConfig =====================
 const firebaseConfig = {
   apiKey: "AIzaSyBHadkZECAlAdXKF9drkZvOeBmmAvTuQyc",
-  authDomain: "mundoporra-26.firebaseapp.com",
+  authDomain: "mundoporra-26.vercel.app",
   projectId: "mundoporra-26",
   storageBucket: "mundoporra-26.firebasestorage.app",
   messagingSenderId: "1009078018458",
