@@ -80,9 +80,7 @@ export const loginConGoogle = async () => {
   // Si no esperamos, en móvil iOS el estado del redirect puede guardarse en memoria
   // efímera y perderse al salir a Google.
   await persistenceReady;
-  if (esMovil()) {
-    return signInWithRedirect(auth, provider);
-  }
+  
   return signInWithPopup(auth, provider);
 };
 
