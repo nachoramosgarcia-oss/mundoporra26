@@ -2174,6 +2174,7 @@ const VistaJornadas = ({ resultadosReales, todasLasPorras, filtroParticipante, s
 
   const [diaSeleccionado, setDiaSeleccionado] = useState(defaultDia);
   const [verAmbos, setVerAmbos] = useState(true); // ayer + hoy
+  const [expandidos, setExpandidos] = useState({});
 
   // Lista de partidos del día seleccionado (y opcionalmente del anterior)
   const diasMostrar = useMemo(() => {
