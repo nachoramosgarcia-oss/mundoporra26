@@ -2280,8 +2280,7 @@ const VistaJornadas = ({ resultadosReales, todasLasPorras, filtroParticipante, s
 
         return (
           <section key={item.tipo + '_' + item.id} className="jornada-card">
-            <div className="jornada-card-head">
-              <div className="jornada-meta">
+<div className="jornada-card-head" onClick={() => setExpandidos(prev => ({ ...prev, [item.tipo + '_' + item.id]: !prev[item.tipo + '_' + item.id] }))} style={{ cursor: 'pointer' }}>              <div className="jornada-meta">
                 <span>{fecha}{hora ? ' · ' + hora + ' CET' : ''}{sede ? ' · ' + sede : ''}</span>
                 <span className="jornada-tipo">{
                   item.tipo === 'ko'
