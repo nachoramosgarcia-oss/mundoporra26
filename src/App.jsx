@@ -3652,7 +3652,7 @@ export default function PorraMundial2026() {
 
   const isAdmin = user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   const cerradas = porrasCerradas();
-  const readOnly = !isAdmin && cerradas && !editandoUid;
+  const readOnly = cerradas && !editandoUid;
 
   // 1) Detectar cambios de autenticación.
   // Importante el orden: PRIMERO esperamos a getRedirectResult (por si volvemos de móvil),
