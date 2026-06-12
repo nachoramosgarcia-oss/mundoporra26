@@ -2324,14 +2324,14 @@ const VistaJornadas = ({ resultadosReales, todasLasPorras, filtroParticipante, s
                 <Lock size={14} />
                 <span>Las predicciones se mostrarán cuando se publique el resultado.</span>
               </div>
-            ) : (
+            ) : expandidos[item.tipo + '_' + item.id] ? (
               <div className="jornada-predicciones">
                 <div className="jornada-pred-head">
                   <span>Participante</span>
                   <span>Predicción</span>
                   <span>Pts</span>
                 </div>
-                {porrasFiltradas.map(p => {
+                {[...porrasFiltradas].sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es')).map(p => {
                   const pred = item.tipo === 'grupos'
                     ? (p.resultados || {})[item.id]
                     : (p.resultadosKO || {})[item.id];
