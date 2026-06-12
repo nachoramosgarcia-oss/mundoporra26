@@ -2385,7 +2385,7 @@ const VistaJornadas = ({ resultadosReales, todasLasPorras, filtroParticipante, s
                   );
                 })}
               </div>
-            )}
+            ) : null}
           </section>
         );
       })}
