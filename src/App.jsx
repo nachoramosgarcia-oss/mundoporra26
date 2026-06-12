@@ -404,7 +404,8 @@ function fechaPartido(p) {
 
 function todayKey() {
   const d = new Date();
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+const madrid = new Date(d.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));
+return `${madrid.getFullYear()}-${String(madrid.getMonth() + 1).padStart(2, '0')}-${String(madrid.getDate()).padStart(2, '0')}`;
 }
 
 function diaAyer(diaKey) {
@@ -2052,6 +2053,7 @@ const VistaClasificacion = ({ clasificacion, currentUid }) => {
                 <th className="th-pos">#</th>
                 <th className="th-team">Participante</th>
                 <th className="th-pts">Total</th>
+<th className="th-pts">Premio</th>
               </tr>
             </thead>
             <tbody>
@@ -2086,10 +2088,13 @@ const VistaClasificacion = ({ clasificacion, currentUid }) => {
                         <span className="expand-arrow">{isExpanded ? '▾' : '▸'}</span>
                       </td>
                       <td className="td-pts" style={{ fontSize: 14 }}>{f.puntosTotales || 0}</td>
+                      <td className="td-pts" style={{ fontSize: 12 }}>
+  {i === 0 ? '327.60€' : i === 1 ? '189€' : i === 2 ? '94.50€' : '—'}
+</td>
                     </tr>
                     {isExpanded && (
                       <tr className="clasif-detail-row">
-                        <td colSpan={3}>
+                        <td colSpan={4}>
                           <div className="clasif-detail">
                             <div className="clasif-detail-item">
                               <span>Resultados Fase de Grupos</span>
