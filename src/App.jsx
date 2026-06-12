@@ -7248,7 +7248,7 @@ export default function PorraMundial2026() {
               />
             )}
           </div>
-        ) : !entered ? (
+) : !entered && !cerradas ? (
           <LandingPage onEnter={() => setEntered(true)} nombre={nombre} />
         ) : (
           <div className="app-shell">
