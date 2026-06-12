@@ -3769,13 +3769,14 @@ export default function PorraMundial2026() {
   // 4) Cargar todas las porras (admin + para vista de jornadas)
   const recargarPorras = useCallback(async () => {
     try {
-      const list = await listarTodasLasPorras();
-      setTodasLasPorras(list);
-    } catch (e) {
-      console.error('Error cargando porras:', e);
-    }
-  }, []);
-
+     const list = isAdmin
+      ? await listarTodasLasPorras()
+      : await listarPorrasPublicas();
+    setTodasLasPorras(list);
+  } catch (e) {
+    console.error('Error cargando porras:', e);
+  }
+}, [isAdmin]);
   useEffect(() => {
     if (user) recargarPorras();
   }, [user, recargarPorras]);
