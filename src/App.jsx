@@ -3589,7 +3589,7 @@ function randomGoal() {
 }
 
 export default function PorraMundial2026() {
-  const [tab, setTab] = useState('instrucciones');
+  const [tab, setTab] = useState('clasificacion');
   const [loading, setLoading] = useState(true);
   const [entered, setEntered] = useState(false);
   const [mode, setMode] = useState('login'); // 'login' | 'public' | 'app'
