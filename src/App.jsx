@@ -7275,11 +7275,12 @@ export default function PorraMundial2026() {
             </div>
             {tab === 'partidos' && (
               <VistaPartidos
-                resultados={resultados}
-                clasificaciones={clasificaciones}
-                onChange={readOnly ? () => {} : onChangeResultado}
-                onResolveDesempate={readOnly ? () => {} : onResolveDesempate}
-              />
+  resultados={resultados}
+  clasificaciones={clasificaciones}
+  onChange={readOnly ? () => {} : onChangeResultado}
+  onResolveDesempate={readOnly ? () => {} : onResolveDesempate}
+  resultadosReales={resultadosReales}
+/>
             )}
             {tab === 'terceros' && (
               <VistaTerceros
