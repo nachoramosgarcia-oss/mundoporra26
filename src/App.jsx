@@ -7319,7 +7319,8 @@ export default function PorraMundial2026() {
   clasificaciones={clasificaciones}
   onChange={readOnly ? () => {} : onChangeResultado}
   onResolveDesempate={readOnly ? () => {} : onResolveDesempate}
-  resultadosReales={resultadosReales}
+resultadosReales={resultadosReales}
+publishedInfo={resultadosReales?.partidosPublicados}
 />
             )}
             {tab === 'terceros' && (
