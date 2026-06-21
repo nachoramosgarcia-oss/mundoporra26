@@ -999,11 +999,23 @@ const RandomBtn = ({ onClick, label = 'Rellenar al azar' }) => (
   </button>
 );
 
-const PartidoRow = ({ partido, resultado, onChange, publishedInfo, onPublicar, onDespublicar }) => {
+const PartidoRow = ({ partido, resultado, onChange, publishedInfo, onPublicar, onDespublicar, resultadosReales }) => {
   const completo = resultado.golesLocal !== '' && resultado.golesVisitante !== '';
   const infoLocal = EQUIPOS_INFO[partido.local] || { flag: '⚽' };
   const infoVisi = EQUIPOS_INFO[partido.visitante] || { flag: '⚽' };
   const publicado = publishedInfo && publishedInfo[partido.id];
+  const realM = resultadosReales?.resultados?.[partido.id];
+const tieneReal = realM && realM.golesLocal !== '' && realM.golesVisitante !== '';
+let ptsPartido = 0;
+if (publicado && tieneReal && completo) {
+  const gl = parseInt(resultado.golesLocal), gv = parseInt(resultado.golesVisitante);
+  const rgl = parseInt(realM.golesLocal), rgv = parseInt(realM.golesVisitante);
+  const signoP = gl > gv ? '1' : gl < gv ? '2' : 'X';
+  const signoR = rgl > rgv ? '1' : rgl < rgv ? '2' : 'X';
+  if (signoP === signoR) ptsPartido += PTS.grupos.signo;
+  if (signoP === signoR && (gl - gv) === (rgl - rgv)) ptsPartido += PTS.grupos.dif;
+  if (gl === rgl && gv === rgv) ptsPartido += PTS.grupos.exacto;
+}
   return (
     <div className={`match ${completo ? 'match-done' : ''} ${publicado ? 'match-published' : ''}`}>
       <div className="match-meta">
@@ -1036,6 +1048,13 @@ const PartidoRow = ({ partido, resultado, onChange, publishedInfo, onPublicar, o
           <Flag pais={partido.visitante} size={22} />
         </div>
       </div>
+      {publicado && tieneReal && (
+        <div className="match-real-result">
+          <span>Real: <strong>{realM.golesLocal}-{realM.golesVisitante}</strong></span>
+          <span className="match-meta-dot">·</span>
+          <span className={ptsPartido > 0 ? 'pts-gain' : ''}>{ptsPartido > 0 ? `+${ptsPartido}` : '0'} pts</span>
+        </div>
+      )}
       {/* Botón publicar / despublicar SOLO en modo admin (cuando se pasa onPublicar) */}
       {onPublicar && (
         <div className="match-publish-bar">
@@ -1169,7 +1188,7 @@ const MiniClasificacion = ({ tabla }) => (
   </div>
 );
 
-const VistaPartidos = ({ resultados, clasificaciones, onChange, onResolveDesempate, publishedInfo, onPublicarPartido, onDespublicarPartido }) => {
+const VistaPartidos = ({ resultados, clasificaciones, onChange, onResolveDesempate, publishedInfo, onPublicarPartido, onDespublicarPartido, resultadosReales }) => {
   const completados = PARTIDOS.reduce((acc, p) => {
     const r = resultados[p.id];
     return r && r.golesLocal !== '' && r.golesVisitante !== '' ? acc + 1 : acc;
@@ -1200,9 +1219,10 @@ const VistaPartidos = ({ resultados, clasificaciones, onChange, onResolveDesempa
               <div className="split-label">Partidos</div>
               {partidosGrupo.map(p => (
                 <PartidoRow key={p.id} partido={p} resultado={resultados[p.id]} onChange={onChange}
-                  publishedInfo={publishedInfo}
-                  onPublicar={onPublicarPartido}
-                  onDespublicar={onDespublicarPartido} />
+  publishedInfo={publishedInfo}
+  onPublicar={onPublicarPartido}
+  onDespublicar={onDespublicarPartido}
+  resultadosReales={resultadosReales} />
               ))}
             </div>
             <div className="group-standings">
@@ -6326,9 +6346,29 @@ export default function PorraMundial2026() {
           background: var(--gold);
           box-shadow: 0 0 6px var(--gold);
         }
-        .tab-admin.tab-active::before { display: none; }
+.tab-admin.tab-active::before { display: none; }
 
-        /* Botones de publicar partido (modo admin) */
+/* Bloque "Real: X-Y · +N pts" en cada partido de Grupos */
+.match-real-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px 14px 0;
+  padding: 8px 10px;
+  background: rgba(0, 217, 163, 0.1);
+  border: 1px solid rgba(0, 217, 163, 0.3);
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.match-real-result strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Botones de publicar partido (modo admin) */
         .match-publish-bar {
           display: flex;
           align-items: center;
