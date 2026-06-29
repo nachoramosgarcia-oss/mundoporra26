@@ -2378,8 +2378,24 @@ const VistaJornadas = ({ resultadosReales, todasLasPorras, filtroParticipante, s
                       </div>
                     );
                   }
-                  // Calcular puntos del partido
+                 // Calcular puntos del partido
                   let ptsLocales = 0;
+                  // Solo evaluamos el marcador si: en Grupos siempre, o en KO si el
+                  // enfrentamiento que predijo este participante coincide exactamente
+                  // (mismos dos equipos) con el cruce real, sin importar el orden.
+                  let acierto = item.tipo === 'grupos';
+                  let predGolesLocal = pred.golesLocal;
+                  let predGolesVisitante = pred.golesVisitante;
+                  const crucePred = item.tipo === 'ko' ? (crucesPorParticipante[p.uid] || {})[item.id] : null;
+                  if (item.tipo === 'ko' && koInfo && koInfo.a && koInfo.b && crucePred && crucePred.a && crucePred.b) {
+                    if (crucePred.a === koInfo.a && crucePred.b === koInfo.b) {
+                      acierto = true;
+                    } else if (crucePred.a === koInfo.b && crucePred.b === koInfo.a) {
+                      acierto = true;
+                      predGolesLocal = pred.golesVisitante;
+                      predGolesVisitante = pred.golesLocal;
+                    }
+                  }
                   try {
                     const escala = item.tipo === 'grupos' ? PTS.grupos
                       : item.id.startsWith('R32') ? PTS.diecisei
@@ -2389,24 +2405,6 @@ const VistaJornadas = ({ resultadosReales, todasLasPorras, filtroParticipante, s
                       : item.id === 'TP' ? PTS.tercerPuesto
                       : item.id === 'FINAL' ? PTS.final
                       : PTS.grupos;
-                    // Solo evaluamos el marcador si: en Grupos siempre, o en KO si el
-                    // enfrentamiento que predijo este participante coincide exactamente
-                    // (mismos dos equipos) con el cruce real, sin importar el orden.
-                    let acierto = item.tipo === 'grupos';
-                    let predGolesLocal = pred.golesLocal;
-                    let predGolesVisitante = pred.golesVisitante;
-                    if (item.tipo === 'ko' && koInfo && koInfo.a && koInfo.b) {
-                      const crucePred = (crucesPorParticipante[p.uid] || {})[item.id];
-                      if (crucePred && crucePred.a && crucePred.b) {
-                        if (crucePred.a === koInfo.a && crucePred.b === koInfo.b) {
-                          acierto = true;
-                        } else if (crucePred.a === koInfo.b && crucePred.b === koInfo.a) {
-                          acierto = true;
-                          predGolesLocal = pred.golesVisitante;
-                          predGolesVisitante = pred.golesLocal;
-                        }
-                      }
-                    }
                     if (acierto) {
                       const sP = parseInt(predGolesLocal) > parseInt(predGolesVisitante) ? '1'
                         : parseInt(predGolesLocal) < parseInt(predGolesVisitante) ? '2' : 'X';
@@ -2419,9 +2417,22 @@ const VistaJornadas = ({ resultadosReales, todasLasPorras, filtroParticipante, s
                       if (predGolesLocal === realM.golesLocal && predGolesVisitante === realM.golesVisitante) ptsLocales += escala.exacto;
                     }
                   } catch (e) {}
+                  const abrev = (nombreEquipo) => {
+                    if (!nombreEquipo) return '?';
+                    const limpio = nombreEquipo.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    return limpio.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase() || '?';
+                  };
                   return (
                     <div key={p.uid} className="jornada-pred-row">
-                      <span>{p.nombre || '(sin nombre)'}</span>
+                      <span className="jornada-pred-nombre">
+                        {p.nombre || '(sin nombre)'}
+                        {item.tipo === 'ko' && crucePred && crucePred.a && crucePred.b && (
+                          <span className={`cruce-chip ${acierto ? 'cruce-chip-ok' : 'cruce-chip-fail'}`}>
+                            {acierto && <CheckCircle2 size={11} />}
+                            {abrev(crucePred.a)}-{abrev(crucePred.b)}
+                          </span>
+                        )}
+                      </span>
                       <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 700 }}>
                         {pred.golesLocal}-{pred.golesVisitante}
                       </span>
