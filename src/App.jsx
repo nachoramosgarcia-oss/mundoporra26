@@ -2389,23 +2389,34 @@ const VistaJornadas = ({ resultadosReales, todasLasPorras, filtroParticipante, s
                       : item.id === 'TP' ? PTS.tercerPuesto
                       : item.id === 'FINAL' ? PTS.final
                       : PTS.grupos;
-                    // Solo evaluamos si en KO los dos equipos coinciden con la realidad
-                    // Para grupos siempre evaluamos
+                    // Solo evaluamos el marcador si: en Grupos siempre, o en KO si el
+                    // enfrentamiento que predijo este participante coincide exactamente
+                    // (mismos dos equipos) con el cruce real, sin importar el orden.
                     let acierto = item.tipo === 'grupos';
-                    if (item.tipo === 'ko' && koInfo) {
-                      // Aquí simplificamos: si tu predicción del partido tiene equipos correctos asumidos, vale
-                      acierto = true;
+                    let predGolesLocal = pred.golesLocal;
+                    let predGolesVisitante = pred.golesVisitante;
+                    if (item.tipo === 'ko' && koInfo && koInfo.a && koInfo.b) {
+                      const crucePred = (crucesPorParticipante[p.uid] || {})[item.id];
+                      if (crucePred && crucePred.a && crucePred.b) {
+                        if (crucePred.a === koInfo.a && crucePred.b === koInfo.b) {
+                          acierto = true;
+                        } else if (crucePred.a === koInfo.b && crucePred.b === koInfo.a) {
+                          acierto = true;
+                          predGolesLocal = pred.golesVisitante;
+                          predGolesVisitante = pred.golesLocal;
+                        }
+                      }
                     }
                     if (acierto) {
-                      const sP = parseInt(pred.golesLocal) > parseInt(pred.golesVisitante) ? '1'
-                        : parseInt(pred.golesLocal) < parseInt(pred.golesVisitante) ? '2' : 'X';
+                      const sP = parseInt(predGolesLocal) > parseInt(predGolesVisitante) ? '1'
+                        : parseInt(predGolesLocal) < parseInt(predGolesVisitante) ? '2' : 'X';
                       const sR = parseInt(realM.golesLocal) > parseInt(realM.golesVisitante) ? '1'
                         : parseInt(realM.golesLocal) < parseInt(realM.golesVisitante) ? '2' : 'X';
                       if (sP === sR) ptsLocales += escala.signo;
-                      const dP = parseInt(pred.golesLocal) - parseInt(pred.golesVisitante);
+                      const dP = parseInt(predGolesLocal) - parseInt(predGolesVisitante);
                       const dR = parseInt(realM.golesLocal) - parseInt(realM.golesVisitante);
                       if (sP === sR && dP === dR) ptsLocales += escala.dif;
-                      if (pred.golesLocal === realM.golesLocal && pred.golesVisitante === realM.golesVisitante) ptsLocales += escala.exacto;
+                      if (predGolesLocal === realM.golesLocal && predGolesVisitante === realM.golesVisitante) ptsLocales += escala.exacto;
                     }
                   } catch (e) {}
                   return (
