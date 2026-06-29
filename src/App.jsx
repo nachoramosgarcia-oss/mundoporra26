@@ -2237,6 +2237,20 @@ const VistaJornadas = ({ resultadosReales, todasLasPorras, filtroParticipante, s
     }
   }, [rRes, rKO, resultadosReales?.desempates, resultadosReales?.desempateTerceros]);
 
+  // Cruces KO predichos por cada participante (para validar si el enfrentamiento
+  // que predijeron coincide exactamente con el cruce real, sin importar el orden).
+  const crucesPorParticipante = useMemo(() => {
+    const out = {};
+    todasLasPorras.forEach(p => {
+      try {
+        out[p.uid] = resolverCrucesPorra(p, CONSTANTES);
+      } catch (e) {
+        out[p.uid] = {};
+      }
+    });
+    return out;
+  }, [todasLasPorras]);
+
   // Filtro de participantes
   const porrasFiltradas = filtroParticipante === '__all__'
     ? todasLasPorras
