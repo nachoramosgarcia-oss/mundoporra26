@@ -7129,7 +7129,36 @@ export default function PorraMundial2026() {
         .jornada-pred-row:last-child { border-bottom: none; }
         .jornada-pred-row span:nth-child(2) { min-width: 60px; text-align: center; }
         .jornada-pred-row span:nth-child(3) { min-width: 40px; text-align: right; }
-
+.jornada-pred-nombre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cruce-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  line-height: 1.6;
+}
+.cruce-chip-ok {
+  background: rgba(0, 217, 163, 0.16);
+  color: var(--accent);
+  border: 1px solid rgba(0, 217, 163, 0.4);
+}
+.cruce-chip-fail {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
         .confirm-card {
           display: grid;
           grid-template-columns: auto 1fr auto;
